@@ -35,6 +35,11 @@ Future<void> cleanAppTmpDir() async {
   }
 }
 
+/// Sets the app's temporary directory path.
+void setAppTmpDir(String path) {
+  _dangerTmpPath = path;
+}
+
 Future<void> _cleanDirSilently(Directory dir) async {
   try {
     final entities = await dir.list().toList();

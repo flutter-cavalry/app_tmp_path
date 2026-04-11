@@ -1,3 +1,7 @@
-## 0.0.1
+## 1.1.0
 
-* TODO: Describe initial release.
+- Add `setAppTmpDir` function to allow setting a custom temporary directory path.
+
+## 1.0.0
+
+- Initial release.
