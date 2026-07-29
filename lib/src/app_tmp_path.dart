@@ -6,14 +6,15 @@ import 'package:path_provider/path_provider.dart';
 import 'package:uuid/uuid.dart';
 
 final _uuid = Uuid();
-String? _cachedSysTmpPath;
 String? _cachedAppTmpPath;
 const _appDirName = '_app';
 
 /// Returns `<tmp_dir>/_app`. If the directory does not exist, it will be created.
 Future<String> initAppTmpDir({bool? skipCreation}) async {
-  _cachedSysTmpPath ??= (await getTemporaryDirectory()).path;
-  _cachedAppTmpPath ??= p.join(_cachedSysTmpPath!, _appDirName);
+  _cachedAppTmpPath ??= p.join(
+    (await getTemporaryDirectory()).path,
+    _appDirName,
+  );
   if (skipCreation != true && !await Directory(_cachedAppTmpPath!).exists()) {
     await Directory(_cachedAppTmpPath!).create(recursive: true);
   }
