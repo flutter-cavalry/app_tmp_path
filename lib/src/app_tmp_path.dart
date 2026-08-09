@@ -9,15 +9,12 @@ final _uuid = Uuid();
 String? _cachedAppTmpPath;
 const _appDirName = '_app';
 
-/// Returns `<tmp_dir>/_app`. If the directory does not exist, it will be created.
-Future<String> initAppTmpDir({bool? skipCreation}) async {
+/// Returns app tmp root dir, which is `<tmp_dir>/_app`.
+Future<String> getAppTmpRootDir() async {
   _cachedAppTmpPath ??= p.join(
     (await getTemporaryDirectory()).path,
     _appDirName,
   );
-  if (skipCreation != true && !await Directory(_cachedAppTmpPath!).exists()) {
-    await Directory(_cachedAppTmpPath!).create(recursive: true);
-  }
   return _cachedAppTmpPath!;
 }
 
@@ -26,15 +23,32 @@ String tmpFileName() {
   return '${_uuid.v4().replaceAll('-', '')}${DateTime.now().millisecondsSinceEpoch}';
 }
 
-/// Returns a temporary path in the `<tmp_dir>/_app`. You can use that to create a temporary file or directory.
-Future<String> createAppTmpPath({String prefix = ''}) async {
+/// Creates a temporary directory in the app's root temporary directory.
+Future<String> createAppTmpDir({String prefix = ''}) async {
   final tmpName = tmpFileName();
-  return p.join(await initAppTmpDir(), '$prefix$tmpName');
+  final dir = p.join(await getAppTmpRootDir(), '$prefix$tmpName');
+  await Directory(dir).create(recursive: true);
+  return dir;
 }
 
-/// Cleans `<tmp_dir>/_app`. It deletes all files and directories in the temporary directory.
-Future<void> cleanAppTmpDir() async {
-  final appTmpDir = await initAppTmpDir(skipCreation: true);
+/// Creates a temporary file path. The directory is created if it does not exist. If `fileName` is provided, the file will be created in a unique temporary directory. Otherwise, the file will be created directly in the app's root temporary directory.
+Future<String> createAppTmpFile({
+  String prefix = '',
+  String suffix = '',
+  String? fileName,
+}) async {
+  final tmpName = fileName ?? '$prefix${tmpFileName()}$suffix';
+  // If `fileName` is provided, we put the file in a unique tmp directory. Otherwise, we put the file directly in the app's root tmp directory.
+  final dir = fileName != null
+      ? p.join(await getAppTmpRootDir(), tmpFileName())
+      : await getAppTmpRootDir();
+  await Directory(dir).create(recursive: true);
+  return p.join(dir, tmpName);
+}
+
+/// Cleans app temporary root directory. It deletes all files and directories in the temporary directory.
+Future<void> cleanAppTmpRootDir() async {
+  final appTmpDir = await getAppTmpRootDir();
   final dir = Directory(appTmpDir);
   if (await dir.exists()) {
     await dir.delete(recursive: true);
@@ -43,13 +57,13 @@ Future<void> cleanAppTmpDir() async {
   await dir.create(recursive: true);
 }
 
-/// Cleans the app's root temporary directory. It deletes all files and directories in the temporary directory.
-Future<void> cleanAppRootTmpDir() async {
+/// Cleans the OS root temporary directory. It deletes all files and directories in the temporary directory.
+Future<void> cleanOSTmpDir() async {
   await _clearDirSilently(await getTemporaryDirectory());
 }
 
-/// Forces the `<tmp_dir>/_app` to be set to a specific path. This is useful for testing purposes.
-void setAppTmpDir(String path) {
+/// Sets the app temporary root directory to a custom path. This is useful for testing purposes. The default app temporary root directory is `<tmp_dir>/_app`.
+void setAppTmpRootDir(String path) {
   _cachedAppTmpPath = path;
 }
 
