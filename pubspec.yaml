@@ -1,6 +1,6 @@
 name: app_tmp_path
 description: "Create a unique file path or directory in app temporary directory."
-version: 3.0.0
+version: 3.1.0
 homepage: https://github.com/flutter-cavalry/app_tmp_path
 
 environment:
@@ -13,6 +13,7 @@ dependencies:
   path: ^1.9.0
   flutter:
     sdk: flutter
+  ios_real_tmp_dir: ^0.1.0
 
 dev_dependencies:
   flutter_test:

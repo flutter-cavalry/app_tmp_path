@@ -1,3 +1,7 @@
+## 3.1.0
+
+- Delete iOS `/tmp` dir in `cleanOSTmpDir`.
+
 ## 3.0.0
 
 - All functions are renamed. See README for details.

@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:ios_real_tmp_dir/ios_real_tmp_dir.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:uuid/uuid.dart';
@@ -60,6 +61,10 @@ Future<void> cleanAppTmpRootDir() async {
 /// Cleans the OS root temporary directory. It deletes all files and directories in the temporary directory.
 Future<void> cleanOSTmpDir() async {
   await _clearDirSilently(await getTemporaryDirectory());
+  if (Platform.isIOS) {
+    final iosTmpDir = await IosRealTmpDir().tmpDir();
+    await _clearDirSilently(Directory(iosTmpDir));
+  }
 }
 
 /// Sets the app temporary root directory to a custom path. This is useful for testing purposes. The default app temporary root directory is `<tmp_dir>/_app`.
@@ -71,21 +76,10 @@ Future<void> _clearDirSilently(Directory dir) async {
   try {
     final entities = await dir.list().toList();
     for (final entity in entities) {
-      final path = entity.path;
-      if (entity is File) {
-        try {
-          await entity.delete();
-        } catch (err) {
-          debugPrint('_cleanDirSilently: deleting file failed: $err, $path');
-        }
-      } else if (entity is Directory) {
-        try {
-          await entity.delete(recursive: true);
-        } catch (err) {
-          debugPrint(
-            '_cleanDirSilently: deleting directory failed: $err, $path',
-          );
-        }
+      try {
+        await entity.delete(recursive: true);
+      } catch (err) {
+        debugPrint('_cleanDirSilently: deleting failed: $err, ${entity.path}');
       }
     }
   } catch (err) {
