@@ -26,7 +26,7 @@ void main() async {
   print(tmpFileName() + '.txt');
   // 30937c061c944d059dfc298242ef1e211679847188991.txt
 
-  // You can also clean the app's temporary directory.
-  await cleanAppTmpRootDir();
+  // You can also clean the app temporary directory.
+  await cleanAppTmpDir();
 }
 ```
